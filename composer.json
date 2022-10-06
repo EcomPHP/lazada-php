@@ -1,0 +1,34 @@
+{
+  "name": "nvuln/lazada-client",
+  "description": "Unofficial Lazada API Client in PHP",
+  "type": "library",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Jin",
+      "email": "j@sax.vn",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "guzzlehttp/guzzle": "^7.5",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8|^9"
+  },
+  "autoload": {
+    "psr-4": {
+      "NVuln\\Lazada\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NVuln\\Lazada\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  }
+}
