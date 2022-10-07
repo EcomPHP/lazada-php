@@ -139,4 +139,9 @@ abstract class Resource
 
         throw new ResponseException($message, $code);
     }
+
+    public static function formatListIds($listIds)
+    {
+        return is_array($listIds) ? '['. implode(',', $listIds) . ']' : $listIds;
+    }
 }
