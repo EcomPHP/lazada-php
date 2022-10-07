@@ -19,6 +19,8 @@ use NVuln\Lazada\Resources\System;
 /**
  * @property-read \NVuln\Lazada\Resources\System $System
  * @property-read \NVuln\Lazada\Resources\Order $Order
+ * @property-read \NVuln\Lazada\Resources\Finance $Finance
+ * @property-read \NVuln\Lazada\Resources\Product $Product
  */
 class Client
 {

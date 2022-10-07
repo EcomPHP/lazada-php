@@ -124,6 +124,13 @@ abstract class Resource
         return $json[$wrapDataKey] ?? $json;
     }
 
+    /**
+     * @param $code
+     * @param $message
+     * @throws \NVuln\Lazada\Errors\ResponseException
+     * @throws \NVuln\Lazada\Errors\TokenException
+     * @return void
+     */
     protected function handleErrorResponse($code, $message)
     {
         if (in_array($code, ['IllegalRefreshToken', 'IllegalAccessToken'])) {

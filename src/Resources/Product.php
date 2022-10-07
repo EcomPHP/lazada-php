@@ -10,9 +10,28 @@
 
 namespace NVuln\Lazada\Resources;
 
+use GuzzleHttp\RequestOptions;
 use NVuln\Lazada\Resource;
 
 class Product extends Resource
 {
 
+    public function GetProductItem($item_id = null, $seller_sku = null)
+    {
+        $params = array_filter([
+            'item_id' => $item_id,
+            'seller_sku' => $seller_sku
+        ]);
+
+        return $this->call('GET', 'product/item/get', [
+            RequestOptions::QUERY => $params
+        ]);
+    }
+
+    public function GetProducts($params = [])
+    {
+        return $this->call('GET', 'products/get', [
+            RequestOptions::QUERY => $params
+        ]);
+    }
 }
