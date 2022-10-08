@@ -142,6 +142,17 @@ abstract class Resource
 
     public static function formatListIds($listIds)
     {
-        return is_array($listIds) ? '['. implode(',', $listIds) . ']' : $listIds;
+        $stringListIds = is_array($listIds) ? implode(',', $listIds) : $listIds;
+
+        // wrapping list inside [ and ], example: [1, 2, 3]
+        if (substr($stringListIds, 0, 1) !== '[') {
+            $stringListIds = '['. $stringListIds;
+        }
+
+        if (substr($stringListIds, -1) !== ']') {
+            $stringListIds = $stringListIds . ']';
+        }
+
+        return $stringListIds;
     }
 }

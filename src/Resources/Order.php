@@ -79,8 +79,7 @@ class Order extends Resource
      */
     public function SetStatusToReadyToShip($item_ids, $shipment_provider, $tracking_number)
     {
-
-        $response = $this->call('POST', 'order/rts', [
+        return $this->call('POST', 'order/rts', [
             RequestOptions::FORM_PARAMS => [
                 'delivery_type' => 'dropship',
                 'order_item_ids' => static::formatListIds($item_ids),
@@ -88,7 +87,5 @@ class Order extends Resource
                 'tracking_number' => $tracking_number,
             ]
         ]);
-
-        return json_decode((string)$response->getBody(), true);
     }
 }

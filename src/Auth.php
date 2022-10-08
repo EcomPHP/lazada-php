@@ -58,10 +58,6 @@ class Auth
      */
     public function createAuthRequest($state = null, $country = null, $return = false)
     {
-        if (is_array($state)) {
-            $state = json_encode($state);
-        }
-
         $params = [
             'response_type' => 'code',
             'client_id' => $this->client->appKey(),
