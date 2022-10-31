@@ -15,6 +15,8 @@ use NVuln\Lazada\Resource;
 
 class System extends Resource
 {
+    protected $authorization_required = false;
+
     /**
      * @inheritDoc
      */

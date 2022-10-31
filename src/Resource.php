@@ -20,6 +20,8 @@ use Psr\Http\Message\RequestInterface;
 
 abstract class Resource
 {
+    protected $authorization_required = true;
+
     /** @var Client */
     protected $client;
 
@@ -56,7 +58,10 @@ abstract class Resource
             parse_str($uri->getQuery(), $query);
             $query['app_key'] = $this->client->appKey();
             $query['sign_method'] = 'sha256';
-            $query['access_token'] = $this->client->accessToken();
+
+            if ($this->client->accessToken() && $this->authorization_required) {
+                $query['access_token'] = $this->client->accessToken();
+            }
 
             list(, $sec) = explode(' ', microtime());
             $query['timestamp'] = $sec . '000';
