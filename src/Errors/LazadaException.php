@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace NVuln\Lazada\Errors;
+namespace EcomPHP\Lazada\Errors;
 
 use Exception;
 

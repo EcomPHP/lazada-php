@@ -8,19 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace NVuln\Lazada;
+namespace EcomPHP\Lazada;
 
-use NVuln\Lazada\Errors\LazadaException;
-use NVuln\Lazada\Resources\Finance;
-use NVuln\Lazada\Resources\Order;
-use NVuln\Lazada\Resources\Product;
-use NVuln\Lazada\Resources\System;
+use EcomPHP\Lazada\Errors\LazadaException;
+use EcomPHP\Lazada\Resources\Finance;
+use EcomPHP\Lazada\Resources\Order;
+use EcomPHP\Lazada\Resources\Product;
+use EcomPHP\Lazada\Resources\System;
 
 /**
- * @property-read \NVuln\Lazada\Resources\System $System
- * @property-read \NVuln\Lazada\Resources\Order $Order
- * @property-read \NVuln\Lazada\Resources\Finance $Finance
- * @property-read \NVuln\Lazada\Resources\Product $Product
+ * @property-read \EcomPHP\Lazada\Resources\System $System
+ * @property-read \EcomPHP\Lazada\Resources\Order $Order
+ * @property-read \EcomPHP\Lazada\Resources\Finance $Finance
+ * @property-read \EcomPHP\Lazada\Resources\Product $Product
  */
 class Client
 {
@@ -93,7 +93,7 @@ class Client
      *
      * @param $resourceName
      * @throws LazadaException
-     * @return \NVuln\Lazada\Resource
+     * @return \EcomPHP\Lazada\Resource
      */
     public function __get($resourceName)
     {

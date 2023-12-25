@@ -8,19 +8,19 @@
  * file that was distributed with this source code.
  */
 
-namespace NVuln\Lazada;
+namespace EcomPHP\Lazada;
 
-use NVuln\Lazada\Errors\LazadaException;
+use EcomPHP\Lazada\Errors\LazadaException;
 
 class Auth
 {
     /**
-     * @var \NVuln\Lazada\Resources\System
+     * @var \EcomPHP\Lazada\Resources\System
      */
     protected $systemApi;
 
     /**
-     * @var \NVuln\Lazada\Client
+     * @var \EcomPHP\Lazada\Client
      */
     protected $client;
 

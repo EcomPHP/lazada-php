@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace NVuln\Lazada\Resources;
+namespace EcomPHP\Lazada\Resources;
 
 use GuzzleHttp\RequestOptions;
-use NVuln\Lazada\Resource;
+use EcomPHP\Lazada\Resource;
 
 class Order extends Resource
 {

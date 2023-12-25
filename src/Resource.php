@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace NVuln\Lazada;
+namespace EcomPHP\Lazada;
 
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ConnectException;
@@ -16,8 +16,8 @@ use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\RequestOptions;
-use NVuln\Lazada\Errors\ResponseException;
-use NVuln\Lazada\Errors\TokenException;
+use EcomPHP\Lazada\Errors\ResponseException;
+use EcomPHP\Lazada\Errors\TokenException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -172,8 +172,8 @@ abstract class Resource
     /**
      * @param $code
      * @param $message
-     * @throws \NVuln\Lazada\Errors\ResponseException
-     * @throws \NVuln\Lazada\Errors\TokenException
+     * @throws \EcomPHP\Lazada\Errors\ResponseException
+     * @throws \EcomPHP\Lazada\Errors\TokenException
      * @return void
      */
     protected function handleErrorResponse($code, $message)
