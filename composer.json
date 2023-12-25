@@ -1,5 +1,5 @@
 {
-  "name": "nvuln/lazada-php",
+  "name": "ecomphp/lazada-php",
   "description": "Unofficial Lazada API Client in PHP",
   "type": "library",
   "license": "Apache-2.0",

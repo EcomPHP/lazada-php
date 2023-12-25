@@ -47,6 +47,7 @@ class Client
 
     public function setAccessToken($accessToken, $region)
     {
+        $region = strtolower($region);
         $this->access_token = $accessToken;
 
         $availableCountries = ['vn', 'sg', 'my', 'th', 'ph', 'id'];

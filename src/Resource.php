@@ -11,12 +11,15 @@
 namespace NVuln\Lazada;
 
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\RequestOptions;
 use NVuln\Lazada\Errors\ResponseException;
 use NVuln\Lazada\Errors\TokenException;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class Resource
 {
@@ -53,6 +56,11 @@ abstract class Resource
     protected function httpClient()
     {
         $stack = HandlerStack::create();
+
+        /**
+         * modify request
+         * append: app_key, sign, sign_method, access_token, timestamp
+         */
         $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
             $uri = $request->getUri();
             parse_str($uri->getQuery(), $query);
@@ -91,6 +99,38 @@ abstract class Resource
             $uri = $uri->withQuery(http_build_query($query));
 
             return $request->withUri($uri);
+        }));
+
+        /*$stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
+            $json = json_decode($response->getBody()->getContents(), true);
+
+            // some error code should retry
+            if (isset($json['code']) && in_array($json['code'], ['ApiCallLimit'])) {
+                throw new RetryException();
+            }
+
+            $response->getBody()->rewind();
+
+            return $response;
+        }));*/
+
+        $stack->push(Middleware::retry(function (
+            $retries,
+            RequestInterface $request,
+            ResponseInterface $response = null,
+            TransferException $exception = null
+        ) {
+            if ($retries >= 2) {
+                return false;
+            }
+
+            if ($exception instanceof ConnectException) {
+                return true;
+            }
+
+            return false;
+        }, function () {
+            return 1500;
         }));
 
         return new HttpClient([
