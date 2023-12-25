@@ -20,12 +20,12 @@
   },
   "autoload": {
     "psr-4": {
-      "NVuln\\Lazada\\": "src"
+      "EcomPHP\\Lazada\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "NVuln\\Lazada\\Tests\\": "tests"
+      "EcomPHP\\Lazada\\Tests\\": "tests"
     }
   },
   "scripts": {
