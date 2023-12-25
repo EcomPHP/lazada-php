@@ -16,15 +16,12 @@ use EcomPHP\Lazada\Resource;
 class Product extends Resource
 {
 
-    public function GetProductItem($item_id = null, $seller_sku = null)
+    public function GetProductItem($item_id = null)
     {
-        $params = array_filter([
-            'item_id' => $item_id,
-            'seller_sku' => $seller_sku
-        ]);
-
         return $this->call('GET', 'product/item/get', [
-            RequestOptions::QUERY => $params
+            RequestOptions::QUERY => [
+                'item_id' => $item_id,
+            ]
         ]);
     }
 
