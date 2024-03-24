@@ -12,6 +12,7 @@ namespace EcomPHP\Lazada;
 
 use EcomPHP\Lazada\Errors\LazadaException;
 use EcomPHP\Lazada\Resources\Finance;
+use EcomPHP\Lazada\Resources\Logistic;
 use EcomPHP\Lazada\Resources\Order;
 use EcomPHP\Lazada\Resources\Product;
 use EcomPHP\Lazada\Resources\System;
@@ -21,6 +22,7 @@ use EcomPHP\Lazada\Resources\System;
  * @property-read \EcomPHP\Lazada\Resources\Order $Order
  * @property-read \EcomPHP\Lazada\Resources\Finance $Finance
  * @property-read \EcomPHP\Lazada\Resources\Product $Product
+ * @property-read \EcomPHP\Lazada\Resources\Logistic $Logistic
  */
 class Client
 {
@@ -29,6 +31,7 @@ class Client
         Order::class,
         Finance::class,
         Product::class,
+        Logistic::class,
     ];
 
     protected $region;
