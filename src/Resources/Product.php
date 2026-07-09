@@ -242,18 +242,4 @@ class Product extends Resource
     {
         return $this->post('image/upload', $params);
     }
-
-    protected function get($uri, $params = [])
-    {
-        return $this->call('GET', $uri, [
-            RequestOptions::QUERY => $params,
-        ]);
-    }
-
-    protected function post($uri, $params = [])
-    {
-        return $this->call('POST', $uri, [
-            RequestOptions::FORM_PARAMS => $params,
-        ]);
-    }
 }

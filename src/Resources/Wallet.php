@@ -84,4 +84,12 @@ class Wallet extends Resource
             ]
         ]);
     }
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fwallet%2Fopen%2Freconciliation
+     */
+    public function Reconciliation2($params = [])
+    {
+        return $this->get('wallet/open/reconciliation', $params);
+    }
+
 }

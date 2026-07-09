@@ -37,6 +37,20 @@ abstract class Resource
         return $this->client->call($method, $uri, $params, $wrapDataKey);
     }
 
+    protected function get($uri, $params = [])
+    {
+        return $this->call('GET', $uri, [
+            RequestOptions::QUERY => $params,
+        ]);
+    }
+
+    protected function post($uri, $params = [])
+    {
+        return $this->call('POST', $uri, [
+            RequestOptions::JSON => $params,
+        ]);
+    }
+
     public static function formatListIds($listIds)
     {
         $stringListIds = is_array($listIds) ? implode(',', $listIds) : $listIds;

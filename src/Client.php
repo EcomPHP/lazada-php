@@ -13,10 +13,37 @@ namespace EcomPHP\Lazada;
 use EcomPHP\Lazada\Errors\LazadaException;
 use EcomPHP\Lazada\Errors\ResponseException;
 use EcomPHP\Lazada\Errors\TokenException;
+use EcomPHP\Lazada\Resources\ChoiceCustomized;
+use EcomPHP\Lazada\Resources\Content;
+use EcomPHP\Lazada\Resources\CrossBoarderProduct;
+use EcomPHP\Lazada\Resources\ETickets;
+use EcomPHP\Lazada\Resources\EarlyBirdPrice;
+use EcomPHP\Lazada\Resources\FBL;
 use EcomPHP\Lazada\Resources\Finance;
+use EcomPHP\Lazada\Resources\FirstMileBigbagOnlyForCN;
+use EcomPHP\Lazada\Resources\Flexicombo;
+use EcomPHP\Lazada\Resources\FreeShipping;
+use EcomPHP\Lazada\Resources\Fulfillment;
+use EcomPHP\Lazada\Resources\InstantMessaging;
+use EcomPHP\Lazada\Resources\LazLike;
+use EcomPHP\Lazada\Resources\LazLive;
+use EcomPHP\Lazada\Resources\LazPay;
+use EcomPHP\Lazada\Resources\LazadaDG;
+use EcomPHP\Lazada\Resources\LazadaLogistics;
 use EcomPHP\Lazada\Resources\Logistic;
+use EcomPHP\Lazada\Resources\LogisticsStation;
+use EcomPHP\Lazada\Resources\MediaCenter;
+use EcomPHP\Lazada\Resources\Membership;
 use EcomPHP\Lazada\Resources\Order;
 use EcomPHP\Lazada\Resources\Product;
+use EcomPHP\Lazada\Resources\ProductReview;
+use EcomPHP\Lazada\Resources\RedMart;
+use EcomPHP\Lazada\Resources\ReturnAndRefund;
+use EcomPHP\Lazada\Resources\Seller;
+use EcomPHP\Lazada\Resources\SellerVoucher;
+use EcomPHP\Lazada\Resources\ServiceMarket;
+use EcomPHP\Lazada\Resources\SponsoredSolutions;
+use EcomPHP\Lazada\Resources\StoreDecoration;
 use EcomPHP\Lazada\Resources\System;
 use EcomPHP\Lazada\Resources\Wallet;
 use GuzzleHttp\Client as HttpClient;
@@ -35,6 +62,7 @@ use Psr\Http\Message\ResponseInterface;
  * @property-read \EcomPHP\Lazada\Resources\Finance $Finance
  * @property-read \EcomPHP\Lazada\Resources\Product $Product
  * @property-read \EcomPHP\Lazada\Resources\Logistic $Logistic
+ * @property-read \EcomPHP\Lazada\Resources\Wallet $Wallet
  */
 class Client
 {
@@ -45,11 +73,38 @@ class Client
      */
     protected $resources = [
         System::class,
+        Seller::class,
         Order::class,
         Finance::class,
         Product::class,
+        CrossBoarderProduct::class,
+        ProductReview::class,
+        StoreDecoration::class,
+        MediaCenter::class,
+        Flexicombo::class,
+        SellerVoucher::class,
+        FreeShipping::class,
+        EarlyBirdPrice::class,
+        ReturnAndRefund::class,
+        Fulfillment::class,
         Logistic::class,
+        FirstMileBigbagOnlyForCN::class,
+        Membership::class,
+        FBL::class,
+        InstantMessaging::class,
+        LazadaLogistics::class,
+        ETickets::class,
+        LazPay::class,
         Wallet::class,
+        RedMart::class,
+        LazadaDG::class,
+        SponsoredSolutions::class,
+        ServiceMarket::class,
+        ChoiceCustomized::class,
+        LazLike::class,
+        LazLive::class,
+        LogisticsStation::class,
+        Content::class,
     ];
 
     protected $region;

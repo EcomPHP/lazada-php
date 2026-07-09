@@ -27,10 +27,10 @@ class ProductTest extends TestCase
         $params = array('foo' => 'bar');
 
         $apis = array(
-            array($resource->AdjustSellableQuantity($params), 'POST', 'product/stock/sellable/adjust', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->BatchUpdateSizeChart($params), 'POST', 'size/chart/batch/update', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->CreateProduct($params), 'POST', 'product/create', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->DeactivateProduct($params), 'POST', 'product/deactivate', array(RequestOptions::FORM_PARAMS => $params)),
+            array($resource->AdjustSellableQuantity($params), 'POST', 'product/stock/sellable/adjust', array(RequestOptions::JSON => $params)),
+            array($resource->BatchUpdateSizeChart($params), 'POST', 'size/chart/batch/update', array(RequestOptions::JSON => $params)),
+            array($resource->CreateProduct($params), 'POST', 'product/create', array(RequestOptions::JSON => $params)),
+            array($resource->DeactivateProduct($params), 'POST', 'product/deactivate', array(RequestOptions::JSON => $params)),
             array($resource->GetBrandByPages($params), 'GET', 'category/brands/query', array(RequestOptions::QUERY => $params)),
             array($resource->GetCategoryAttributes($params), 'GET', 'category/attributes/get', array(RequestOptions::QUERY => $params)),
             array($resource->GetCategorySuggestion($params), 'GET', 'product/category/suggestion/get', array(RequestOptions::QUERY => $params)),
@@ -45,16 +45,16 @@ class ProductTest extends TestCase
             array($resource->GetSellerItemLimit($params), 'GET', 'product/seller/item/limit', array(RequestOptions::QUERY => $params)),
             array($resource->GetSizeChartTemplate($params), 'GET', 'size/chart/template/get', array(RequestOptions::QUERY => $params)),
             array($resource->GetUnfilledAttributeItem($params), 'GET', 'product/unfilled/attribute/get', array(RequestOptions::QUERY => $params)),
-            array($resource->MigrateImage($params), 'POST', 'image/migrate', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->MigrateImages($params), 'POST', 'images/migrate', array(RequestOptions::FORM_PARAMS => $params)),
+            array($resource->MigrateImage($params), 'POST', 'image/migrate', array(RequestOptions::JSON => $params)),
+            array($resource->MigrateImages($params), 'POST', 'images/migrate', array(RequestOptions::JSON => $params)),
             array($resource->ProductCheck($params), 'GET', 'product/pre/check', array(RequestOptions::QUERY => $params)),
-            array($resource->RemoveProduct($params), 'POST', 'product/remove', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->RemoveSku($params), 'POST', 'product/sku/remove', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->SetImages($params), 'POST', 'images/set', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->UpdatePriceQuantity($params), 'POST', 'product/price_quantity/update', array(RequestOptions::FORM_PARAMS => $params)),
-            array($resource->UpdateProduct($params), 'POST', 'product/update', array(RequestOptions::FORM_PARAMS => $params)),
+            array($resource->RemoveProduct($params), 'POST', 'product/remove', array(RequestOptions::JSON => $params)),
+            array($resource->RemoveSku($params), 'POST', 'product/sku/remove', array(RequestOptions::JSON => $params)),
+            array($resource->SetImages($params), 'POST', 'images/set', array(RequestOptions::JSON => $params)),
+            array($resource->UpdatePriceQuantity($params), 'POST', 'product/price_quantity/update', array(RequestOptions::JSON => $params)),
+            array($resource->UpdateProduct($params), 'POST', 'product/update', array(RequestOptions::JSON => $params)),
             array($resource->UpdateSellableQuantity($params), 'GET', 'product/stock/sellable/update', array(RequestOptions::QUERY => $params)),
-            array($resource->UploadImage($params), 'POST', 'image/upload', array(RequestOptions::FORM_PARAMS => $params)),
+            array($resource->UploadImage($params), 'POST', 'image/upload', array(RequestOptions::JSON => $params)),
         );
 
         foreach ($apis as $api) {

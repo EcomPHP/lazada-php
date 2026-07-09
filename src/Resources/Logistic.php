@@ -96,4 +96,20 @@ class Logistic extends Resource
             ],
         ]);
     }
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistics%2Fldp%2FcreateConsolidationService
+     */
+    public function CreateConsolidationService($params = [])
+    {
+        return $this->post('logistics/ldp/createConsolidationService', $params);
+    }
+
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistics%2Fldp%2FupdateLastmile
+     */
+    public function UpdateLastMile($params = [])
+    {
+        return $this->post('logistics/ldp/updateLastmile', $params);
+    }
+
 }
