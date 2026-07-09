@@ -60,4 +60,20 @@ class Finance extends Resource
             RequestOptions::QUERY => $params,
         ]);
     }
+
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flbs%2Fslb%2FqueryLogisticsFeeDetail
+     */
+    public function QueryLogisticsFeeDetail($params = [])
+    {
+        $params = array_merge([
+            'request_type' => 'OPEN_API',
+            'page_no' => 1,
+            'page_size' => 20,
+        ], $params);
+
+        return $this->call('GET', 'lbs/slb/queryLogisticsFeeDetail', [
+            RequestOptions::QUERY => $params,
+        ]);
+    }
 }
