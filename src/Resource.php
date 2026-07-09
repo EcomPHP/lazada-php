@@ -10,16 +10,7 @@
 
 namespace EcomPHP\Lazada;
 
-use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\RequestOptions;
-use EcomPHP\Lazada\Errors\ResponseException;
-use EcomPHP\Lazada\Errors\TokenException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 
 abstract class Resource
 {
@@ -31,6 +22,8 @@ abstract class Resource
     public function useApiClient(Client $client)
     {
         $this->client = $client;
+
+        return $this;
     }
 
     public function call($method, $uri, $params = [], $wrapDataKey = 'data')

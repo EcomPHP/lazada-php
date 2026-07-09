@@ -38,7 +38,12 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Client
 {
-    public const resources = [
+    public const AVAILABLE_REGIONS = ['vn', 'sg', 'my', 'th', 'ph', 'id'];
+
+    /**
+     * @var array<class-string<\EcomPHP\Lazada\Resource>>
+     */
+    protected $resources = [
         System::class,
         Order::class,
         Finance::class,
@@ -54,11 +59,19 @@ class Client
 
     protected $access_token;
 
-    public function __construct($appKey, $appSecret, $callbackUrl)
+    /**
+     * Default options for Guzzle client.
+     *
+     * @var array
+     */
+    protected $options = [];
+
+    public function __construct($appKey, $appSecret, $callbackUrl, $options = [])
     {
         $this->app_key = $appKey;
         $this->app_secret = $appSecret;
         $this->callback_url = $callbackUrl;
+        $this->options = $options;
     }
 
     public function setAccessToken($accessToken, $region)
@@ -66,9 +79,8 @@ class Client
         $region = strtolower($region);
         $this->access_token = $accessToken;
 
-        $availableCountries = ['vn', 'sg', 'my', 'th', 'ph', 'id'];
-        if (!in_array($region, $availableCountries)) {
-            throw new LazadaException("Region '$region' is not valid.");
+        if (!in_array($region, self::AVAILABLE_REGIONS, true)) {
+            throw new LazadaException("Region '$region' is not valid. Available regions: " . implode(', ', self::AVAILABLE_REGIONS));
         }
 
         $this->region = $region;
@@ -114,31 +126,53 @@ class Client
     public function __get($resourceName)
     {
         $resourceClassName = __NAMESPACE__."\\Resources\\".$resourceName;
-        if (!in_array($resourceClassName, self::resources)) {
+        if (!in_array($resourceClassName, $this->resources, true)) {
+            $resourceClassName = null;
+
+            foreach ($this->resources as $resourceClass) {
+                if (strpos($resourceClass, __NAMESPACE__."\\Resources\\") === 0) {
+                    continue;
+                }
+
+                $lookup = "\\".$resourceName;
+                if (substr_compare($resourceClass, $lookup, -strlen($lookup)) === 0) {
+                    $resourceClassName = $resourceClass;
+                    break;
+                }
+            }
+        }
+
+        if ($resourceClassName === null) {
             throw new LazadaException("Invalid resource ".$resourceName);
         }
 
         /** @var \EcomPHP\Lazada\Resource $resource */
         $resource = new $resourceClassName();
-        $resource->useApiClient($this);
-
         if (!$resource instanceof Resource) {
             throw new LazadaException("Invalid resource class ".$resourceClassName);
         }
+
+        $resource->useApiClient($this);
 
         return $resource;
     }
 
     public function call($method, $uri, $params = [], $wrapDataKey = 'data')
     {
+        $uri = trim($uri, '/');
+        if (strpos($uri, 'rest/') === 0) {
+            $uri = substr($uri, 5);
+        }
+
         $response = $this->httpClient()->request($method, $uri, $params);
-        $json = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+        $json = json_decode($body, true);
         if (!is_array($json)) {
-            return $response->getBody()->getContents();
+            return $body;
         }
 
         $code = $json['code'] ?? -1;
-        if ($code !== '0') {
+        if ((string) $code !== '0') {
             $this->handleErrorResponse($code, $json['message'] ?? '');
         }
 
@@ -147,7 +181,7 @@ class Client
 
     protected function handleErrorResponse($code, $message)
     {
-        if (in_array($code, ['IllegalRefreshToken', 'IllegalAccessToken'])) {
+        if (in_array($code, ['IllegalRefreshToken', 'IllegalAccessToken'], true)) {
             throw new TokenException($message, $code);
         }
 
@@ -184,9 +218,10 @@ class Client
             // merge post content with query params to calculate signature
             $method = strtoupper($request->getMethod());
             if ($method === 'POST') {
-                $contentType = $request->getHeader('content-type')[0] ?? 'application/x-www-form-urlencoded';
-                if ($contentType === 'application/json') {
+                $contentType = $request->getHeaderLine('content-type') ?: 'application/x-www-form-urlencoded';
+                if (stripos($contentType, 'application/json') !== false) {
                     $dataPost = json_decode($request->getBody()->getContents(), true);
+                    $dataPost = is_array($dataPost) ? $dataPost : [];
                 }
                 else {
                     parse_str($request->getBody()->getContents(), $dataPost);
@@ -228,11 +263,11 @@ class Client
             return 1500;
         }));
 
-        return new HttpClient([
+        return new HttpClient(array_merge([
             RequestOptions::HTTP_ERRORS => false, // disable throw exception, manual handle it
             'handler' => $stack,
             'base_uri' => $this->baseUrl() . '/',
-        ]);
+        ], $this->options));
     }
 
     protected function prepareSignature($uri, $params)
