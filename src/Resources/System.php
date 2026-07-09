@@ -38,6 +38,18 @@ class System extends Resource
     }
 
     /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fauth%2Ftoken%2FcreateWithOpenId
+     */
+    public function GenerateAccessTokenWithOpenId($auth_code)
+    {
+        return $this->call('GET', 'auth/token/createWithOpenId', [
+            RequestOptions::QUERY => [
+                'code' => $auth_code
+            ],
+        ]);
+    }
+
+    /**
      * @see https://open.lazada.com/apps/doc/api?path=%2Fauth%2Ftoken%2Frefresh
      */
     public function RefreshAccessToken($refresh_token)
@@ -46,6 +58,16 @@ class System extends Resource
             RequestOptions::QUERY => [
                'refresh_token' => $refresh_token
             ],
+        ]);
+    }
+
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Ffbi%2Fdownload%2FstartExportByDataset
+     */
+    public function startExportByDataset($data)
+    {
+        return $this->call('GET', 'fbi/download/startExportByDataset', [
+            RequestOptions::QUERY => $data,
         ]);
     }
 }
