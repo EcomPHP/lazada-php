@@ -16,18 +16,6 @@ use EcomPHP\Lazada\Resource;
 class Order extends Resource
 {
     /**
-     * @see https://open.lazada.com/apps/doc/api?path=%2Forder%2Fdocument%2Fawb%2Fpdf%2Fget
-     */
-    public function GetAwbDocumentPDF($order_item_ids)
-    {
-        return $this->call('GET', 'order/document/awb/pdf/get', [
-            RequestOptions::QUERY => [
-                'order_item_ids' => static::formatListIds($order_item_ids),
-            ]
-        ]);
-    }
-
-    /**
      * @see https://open.lazada.com/apps/doc/api?path=%2Forder%2Fdocument%2Fget
      */
     public function GetDocument($doc_type, $order_item_ids)
