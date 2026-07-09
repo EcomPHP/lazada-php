@@ -1,6 +1,6 @@
 {
   "name": "ecomphp/lazada-php",
-  "description": "Unofficial Lazada API Client in PHP",
+  "description": "A powerful, lightweight, and developer-friendly Lazada API PHP SDK designed to integrate Lazada Open Platform into vanilla PHP applications, Laravel, or Symfony projects.",
   "type": "library",
   "bin": [
     "bin/lazada-mcp-server"
