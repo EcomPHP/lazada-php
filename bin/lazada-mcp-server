@@ -1,0 +1,564 @@
+#!/usr/bin/env php
+<?php
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+use GuzzleHttp\Client as GuzzleHttpClient;
+
+class Server
+{
+    const API_LIST_URL = 'https://isvconsole.lazada.com/handler/share/apidoc/getApiCategoryMixed.json';
+    const API_DETAIL_URL = 'https://isvconsole.lazada.com/handler/share/apidoc/getApi.json';
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    private $apiCategoryPayload;
+
+    /**
+     * @var callable|null
+     */
+    private $apiCategoryFetcher;
+
+    public function __construct($apiCategoryFetcher = null)
+    {
+        $this->apiCategoryFetcher = is_callable($apiCategoryFetcher) ? $apiCategoryFetcher : null;
+    }
+
+    public function listTools()
+    {
+        return [
+            [
+                'name' => 'get_api_list',
+                'description' => 'Get the live Lazada Open Platform API category list from the Lazada ISV console.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'category_id' => [
+                            'type' => ['integer', 'string'],
+                            'description' => 'Optional category id used to return APIs from one category only.',
+                        ],
+                        'category_name' => [
+                            'type' => 'string',
+                            'description' => 'Optional case-insensitive category name filter.',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'name' => 'get_api_detail',
+                'description' => 'Get detailed Lazada Open Platform API metadata by endpoint path.',
+                'inputSchema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'path' => [
+                            'type' => 'string',
+                            'description' => 'Exact API endpoint path, for example /auth/token/create.',
+                        ],
+                        'include_raw' => [
+                            'type' => 'boolean',
+                            'description' => 'Set true to include the original Lazada response payload for debugging.',
+                        ],
+                    ],
+                    'required' => ['path'],
+                ],
+            ],
+        ];
+    }
+
+    public function callTool($name, array $arguments)
+    {
+        switch ($name) {
+            case 'get_api_list':
+                return $this->getApiList($arguments);
+            case 'get_api_detail':
+                return $this->getApiDetail($arguments);
+            default:
+                throw new \InvalidArgumentException('Unknown tool: ' . $name);
+        }
+    }
+
+    public function getApiList(array $arguments)
+    {
+        $payload = $this->fetchApiCategories();
+        $categories = $this->filterCategories($payload['data'], $arguments);
+        $apiCount = 0;
+
+        foreach ($categories as $index => $category) {
+            $apiList = isset($category['apiList']) && is_array($category['apiList']) ? $category['apiList'] : [];
+            $apiCount += count($apiList);
+            $categories[$index]['api_count'] = count($apiList);
+        }
+
+        return [
+            'source' => self::API_LIST_URL,
+            'success' => $payload['success'],
+            'httpStatus' => $payload['httpStatus'],
+            'errorMessage' => $payload['errorMessage'],
+            'errorCode' => $payload['errorCode'],
+            'errorLevel' => $payload['errorLevel'],
+            'category_count' => count($categories),
+            'api_count' => $apiCount,
+            'categories' => $categories,
+        ];
+    }
+
+    public function getApiDetail(array $arguments)
+    {
+        if (empty($arguments['path'])) {
+            throw new \InvalidArgumentException('path is required.');
+        }
+
+        $path = $arguments['path'];
+        $payload = $this->fetchApiDetail($path);
+        $api = $this->normalizeApiDetail($payload['data'], $path, !empty($arguments['include_raw']));
+
+        return [
+            'source' => $this->buildApiDetailUrl($path),
+            'success' => $payload['success'],
+            'httpStatus' => $payload['httpStatus'],
+            'errorMessage' => $payload['errorMessage'],
+            'errorCode' => $payload['errorCode'],
+            'errorLevel' => $payload['errorLevel'],
+            'path' => $path,
+            'api' => $api,
+        ];
+    }
+
+    private function normalizeApiDetail(array $data, $requestedPath, $includeRaw)
+    {
+        $apiList = isset($data['apiList']) && is_array($data['apiList']) ? $data['apiList'] : [];
+        $detail = [];
+        foreach ($apiList as $item) {
+            if (isset($item['path']) && $item['path'] === $requestedPath) {
+                $detail = $item;
+                break;
+            }
+        }
+
+        if (empty($detail) && isset($apiList[0]) && is_array($apiList[0])) {
+            $detail = $apiList[0];
+        }
+
+        $result = [
+            'id' => isset($data['id']) ? $data['id'] : (isset($detail['docId']) ? $detail['docId'] : null),
+            'title' => isset($detail['title']) ? $detail['title'] : null,
+            'path' => isset($detail['path']) ? $detail['path'] : $requestedPath,
+            'method' => isset($detail['method']) ? strtoupper($detail['method']) : null,
+            'description' => isset($detail['desc']) ? $detail['desc'] : '',
+            'introduction' => isset($detail['introduction']) ? $detail['introduction'] : '',
+            'auth' => [
+                'required' => isset($data['authType']) ? (int) $data['authType'] !== 0 : null,
+                'type' => isset($data['authType']) ? $data['authType'] : null,
+            ],
+            'chargeable' => isset($detail['chargeable']) ? (bool) $detail['chargeable'] : null,
+            'lastModified' => isset($detail['lastModified']) ? $detail['lastModified'] : (isset($data['lastModified']) ? $data['lastModified'] : null),
+            'viewCount' => isset($detail['views']) ? $detail['views'] : (isset($data['viewCount']) ? $data['viewCount'] : null),
+            'sdkDownloadsLink' => isset($data['sdkDownloadsLink']) ? $data['sdkDownloadsLink'] : null,
+            'testToolLink' => isset($data['testToolLink']) ? $data['testToolLink'] : null,
+            'request' => [
+                'commonParameters' => $this->parameterList($detail, 'commonParameters'),
+                'endpoints' => $this->endpointList($detail, 'endpointParams'),
+                'parameters' => $this->parameterList($detail, 'parameters'),
+            ],
+            'response' => [
+                'parameters' => $this->parameterList($detail, 'outputParameters'),
+            ],
+            'errorCodes' => $this->errorCodeList($detail, 'errorCodes'),
+            'examples' => $this->exampleList($detail, 'examples'),
+            'relatedApis' => $this->normalizeSuggestions(isset($data['suggestionList']) && is_array($data['suggestionList']) ? $data['suggestionList'] : []),
+        ];
+
+        if ($includeRaw) {
+            $result['raw'] = $data;
+        }
+
+        return $result;
+    }
+
+    private function parameterList(array $data, $key)
+    {
+        $items = $this->extractDataItems($data, $key);
+        $result = [];
+        foreach ($items as $item) {
+            if (is_array($item)) {
+                $result[] = $this->normalizeParameter($item);
+            }
+        }
+
+        return $result;
+    }
+
+    private function normalizeParameter(array $item)
+    {
+        $parameter = [
+            'name' => isset($item['name']) ? $item['name'] : null,
+            'type' => isset($item['type']) ? $item['type'] : null,
+            'required' => isset($item['required']) ? $item['required'] : null,
+            'description' => isset($item['desc']) ? $this->cleanText($item['desc']) : '',
+        ];
+
+        if (isset($item['children']) && is_array($item['children']) && count($item['children']) > 0) {
+            $parameter['children'] = [];
+            foreach ($item['children'] as $child) {
+                if (is_array($child)) {
+                    $parameter['children'][] = $this->normalizeParameter($child);
+                }
+            }
+        }
+
+        return $parameter;
+    }
+
+    private function endpointList(array $data, $key)
+    {
+        $items = $this->extractDataItems($data, $key);
+        $result = [];
+        foreach ($items as $item) {
+            if (!is_array($item) || !isset($item['name'])) {
+                continue;
+            }
+
+            $result[] = [
+                'region' => $item['name'],
+                'url' => isset($item['desc']) ? $item['desc'] : '',
+            ];
+        }
+
+        return $result;
+    }
+
+    private function errorCodeList(array $data, $key)
+    {
+        $items = $this->extractDataItems($data, $key);
+        $result = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $result[] = [
+                'code' => isset($item['code']) ? $item['code'] : (isset($item['errorCode']) ? $item['errorCode'] : null),
+                'message' => isset($item['message']) ? $this->cleanText($item['message']) : (isset($item['desc']) ? $this->cleanText($item['desc']) : ''),
+                'solution' => isset($item['solution']) ? $this->cleanText($item['solution']) : '',
+            ];
+        }
+
+        return $result;
+    }
+
+    private function exampleList(array $data, $key)
+    {
+        $items = $this->extractDataItems($data, $key);
+        $result = [];
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $result[] = [
+                'title' => isset($item['title']) ? $item['title'] : (isset($item['name']) ? $item['name'] : null),
+                'request' => isset($item['request']) ? $item['request'] : null,
+                'response' => isset($item['response']) ? $item['response'] : null,
+            ];
+        }
+
+        return $result;
+    }
+
+    private function extractDataItems(array $data, $key)
+    {
+        if (!isset($data[$key]) || !is_array($data[$key])) {
+            return [];
+        }
+
+        if (isset($data[$key]['data']) && is_array($data[$key]['data'])) {
+            return $data[$key]['data'];
+        }
+
+        return $data[$key];
+    }
+
+    private function cleanText($text)
+    {
+        return trim(preg_replace('/\s+/', ' ', strip_tags((string) $text)));
+    }
+
+    private function normalizeSuggestions(array $suggestions)
+    {
+        $results = [];
+        foreach ($suggestions as $suggestion) {
+            if (!is_array($suggestion)) {
+                continue;
+            }
+
+            $results[] = [
+                'title' => isset($suggestion['title']) ? $suggestion['title'] : null,
+                'path' => isset($suggestion['path']) ? $suggestion['path'] : null,
+                'method' => isset($suggestion['method']) ? strtoupper($suggestion['method']) : null,
+            ];
+        }
+
+        return $results;
+    }
+
+    private function fetchApiDetail($path)
+    {
+        $url = $this->buildApiDetailUrl($path);
+        $client = new GuzzleHttpClient([
+            'timeout' => 20,
+        ]);
+        $response = $client->request('GET', $url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'User-Agent' => 'Mozilla/5.0',
+            ],
+            'http_errors' => false,
+        ]);
+        $decoded = json_decode((string) $response->getBody(), true);
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('Unable to parse Lazada API detail JSON response.');
+        }
+
+        $payload = $decoded;
+        if (!isset($payload['httpStatus']) || $payload['httpStatus'] === '') {
+            $payload['httpStatus'] = (string) $response->getStatusCode();
+        }
+
+        foreach (['success', 'httpStatus', 'errorMessage', 'errorCode', 'errorLevel'] as $key) {
+            if (!array_key_exists($key, $payload)) {
+                $payload[$key] = $key === 'success' ? false : '';
+            }
+        }
+
+        if ($payload['success'] !== true || empty($payload['data']) || !is_array($payload['data'])) {
+            throw new \RuntimeException(sprintf(
+                'Lazada API detail request failed or returned empty data. success=%s httpStatus=%s errorMessage=%s errorCode=%s errorLevel=%s',
+                $payload['success'] ? 'true' : 'false',
+                $payload['httpStatus'],
+                $payload['errorMessage'],
+                $payload['errorCode'],
+                $payload['errorLevel']
+            ));
+        }
+
+        return $payload;
+    }
+
+    private function buildApiDetailUrl($path)
+    {
+        return self::API_DETAIL_URL . '?path=' . rawurlencode($path);
+    }
+
+    private function fetchApiCategories()
+    {
+        if (is_array($this->apiCategoryPayload)) {
+            return $this->apiCategoryPayload;
+        }
+
+        if ($this->apiCategoryFetcher !== null) {
+            $payload = call_user_func($this->apiCategoryFetcher, self::API_LIST_URL);
+        } else {
+            $client = new GuzzleHttpClient([
+                'timeout' => 20,
+            ]);
+            $response = $client->request('GET', self::API_LIST_URL, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'Mozilla/5.0',
+                ],
+                'http_errors' => false,
+            ]);
+            $decoded = json_decode((string) $response->getBody(), true);
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('Unable to parse Lazada API category JSON response.');
+            }
+
+            $payload = $decoded;
+            if (!isset($payload['httpStatus']) || $payload['httpStatus'] === '') {
+                $payload['httpStatus'] = (string) $response->getStatusCode();
+            }
+        }
+
+        if (!is_array($payload)) {
+            throw new \RuntimeException('Lazada API category fetcher must return an array.');
+        }
+
+        foreach (['success', 'httpStatus', 'errorMessage', 'errorCode', 'errorLevel'] as $key) {
+            if (!array_key_exists($key, $payload)) {
+                $payload[$key] = $key === 'success' ? false : '';
+            }
+        }
+
+        if ($payload['success'] !== true || empty($payload['data']) || !is_array($payload['data'])) {
+            throw new \RuntimeException(sprintf(
+                'Lazada API category request failed or returned empty data. success=%s httpStatus=%s errorMessage=%s errorCode=%s errorLevel=%s',
+                $payload['success'] ? 'true' : 'false',
+                $payload['httpStatus'],
+                $payload['errorMessage'],
+                $payload['errorCode'],
+                $payload['errorLevel']
+            ));
+        }
+
+        $this->apiCategoryPayload = $payload;
+        return $this->apiCategoryPayload;
+    }
+
+    private function filterCategories(array $categories, array $arguments)
+    {
+        $filtered = [];
+        foreach ($categories as $category) {
+            if (isset($arguments['category_id']) && (string) $category['id'] !== (string) $arguments['category_id']) {
+                continue;
+            }
+
+            if (!empty($arguments['category_name']) && stripos($category['name'], $arguments['category_name']) === false) {
+                continue;
+            }
+
+            $filtered[] = $category;
+        }
+
+        return $filtered;
+    }
+}
+
+$server = new Server();
+
+function writeMessage(array $payload)
+{
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        return;
+    }
+
+    fwrite(STDOUT, $json."\n");
+    fflush(STDOUT);
+}
+
+function readMessage()
+{
+    $line = fgets(STDIN);
+    if ($line === false) {
+        return null;
+    }
+
+    $trimmed = trim($line);
+    if ($trimmed === '') {
+        return null;
+    }
+
+    $decoded = json_decode($trimmed, true);
+    if (!is_array($decoded)) {
+        return null;
+    }
+
+    return $decoded;
+}
+
+while (true) {
+    $request = readMessage();
+    if ($request === null) {
+        if (feof(STDIN)) {
+            exit(0);
+        }
+        continue;
+    }
+
+    if (!array_key_exists('method', $request)) {
+        continue;
+    }
+
+    $method = $request['method'];
+    if ($method === 'notifications/initialized' || $method === 'initialized') {
+        continue;
+    }
+
+    if (!array_key_exists('id', $request)) {
+        continue;
+    }
+
+    $id = $request['id'];
+
+    try {
+        if ($method === 'initialize') {
+            writeMessage([
+                'jsonrpc' => '2.0',
+                'id' => $id,
+                'result' => [
+                    'protocolVersion' => '2024-11-05',
+                    'serverInfo' => [
+                        'name' => 'lazada-php-mcp',
+                        'version' => '0.1.0',
+                    ],
+                    'capabilities' => [
+                        'tools' => new stdClass(),
+                    ],
+                ],
+            ]);
+            continue;
+        }
+
+        if ($method === 'tools/list') {
+            writeMessage([
+                'jsonrpc' => '2.0',
+                'id' => $id,
+                'result' => [
+                    'tools' => $server->listTools(),
+                ],
+            ]);
+            continue;
+        }
+
+        if ($method === 'tools/call') {
+            $params = isset($request['params']) && is_array($request['params']) ? $request['params'] : [];
+            $name = isset($params['name']) ? $params['name'] : '';
+            $arguments = isset($params['arguments']) && is_array($params['arguments']) ? $params['arguments'] : [];
+            $result = $server->callTool($name, $arguments);
+
+            writeMessage([
+                'jsonrpc' => '2.0',
+                'id' => $id,
+                'result' => [
+                    'content' => [
+                        [
+                            'type' => 'text',
+                            'text' => json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                        ],
+                    ],
+                ],
+            ]);
+            continue;
+        }
+
+        if ($method === 'ping') {
+            writeMessage([
+                'jsonrpc' => '2.0',
+                'id' => $id,
+                'result' => [
+                    'ok' => true,
+                ],
+            ]);
+            continue;
+        }
+
+        writeMessage([
+            'jsonrpc' => '2.0',
+            'id' => $id,
+            'error' => [
+                'code' => -32601,
+                'message' => 'Method not found: '.$method,
+            ],
+        ]);
+    } catch (Throwable $exception) {
+        writeMessage([
+            'jsonrpc' => '2.0',
+            'id' => $id,
+            'error' => [
+                'code' => -32000,
+                'message' => $exception->getMessage(),
+            ],
+        ]);
+    }
+}

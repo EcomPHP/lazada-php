@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "lazada": {
+            "command": "php",
+            "args": [
+                "bin/lazada-mcp-server"
+            ]
+        }
+    }
+}

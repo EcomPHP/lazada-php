@@ -2,6 +2,9 @@
   "name": "ecomphp/lazada-php",
   "description": "Unofficial Lazada API Client in PHP",
   "type": "library",
+  "bin": [
+    "bin/lazada-mcp-server"
+  ],
   "license": "Apache-2.0",
   "authors": [
     {
