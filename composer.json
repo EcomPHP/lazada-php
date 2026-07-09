@@ -8,13 +8,12 @@
   "license": "Apache-2.0",
   "authors": [
     {
-      "name": "Jin",
-      "email": "j@sax.vn",
+      "name": "nVuln",
       "role": "Developer"
     }
   ],
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.4",
     "guzzlehttp/guzzle": "^7.5",
     "ext-json": "*"
   },
