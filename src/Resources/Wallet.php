@@ -17,6 +17,9 @@ class Wallet extends Resource
 {
     protected $authorization_required = false;
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fwallet%2Ftransfer%2Fquery
+     */
     public function DirectTransferQuery($transfer_order_id)
     {
         return $this->call('GET', 'wallet/transfer/query', [
@@ -26,6 +29,9 @@ class Wallet extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fwallet%2Ftransfer%2Frequest
+     */
     public function DirectTransferRequest($transfer_order_id, $amount, $account_number, $withdrawable = true)
     {
         return $this->call('POST', 'wallet/transfer/request', [
@@ -38,6 +44,9 @@ class Wallet extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fwallet%2Fgiftcode%2Fquery
+     */
     public function GiftCodeQuery($transfer_order_id, $page)
     {
         return $this->call('GET', 'wallet/giftcode/query', [
@@ -48,6 +57,9 @@ class Wallet extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fwallet%2Fgiftcode%2Frequest
+     */
     public function GiftCodeRequest($transfer_order_id, $amount, $quantity, $start_timestamp, $end_timestamp)
     {
         return $this->call('POST', 'wallet/giftcode/request', [
@@ -61,6 +73,9 @@ class Wallet extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fwallet%2Freconciliation
+     */
     public function Reconciliation($date)
     {
         return $this->call('GET', 'wallet/reconciliation', [

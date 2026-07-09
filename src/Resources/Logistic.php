@@ -15,6 +15,9 @@ use GuzzleHttp\RequestOptions;
 
 class Logistic extends Resource
 {
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistics%2Ftps%2Frunsheets%2Fstops
+     */
     public function AddOrUpdatePickupStop($data)
     {
         return $this->call('POST', 'logistics/tps/runsheets/stops', [
@@ -22,6 +25,9 @@ class Logistic extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistics%2Ftps%2Fstations%2Fcreate
+     */
     public function Create3PLStation($data)
     {
         return $this->call('POST', 'logistics/tps/stations/create', [
@@ -29,6 +35,9 @@ class Logistic extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistic%2Forder%2Ftrace
+     */
     public function GetOrderTrace($order_id, $extra_params = [])
     {
         $extra_params['order_id'] = $order_id;
@@ -38,6 +47,9 @@ class Logistic extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fdop%2Fscan
+     */
     public function ScanParcel($cageNumber, $trackingNumber)
     {
         return $this->call('POST', 'dop/scan', [
@@ -48,6 +60,9 @@ class Logistic extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Fstations%2Fdop%2Fscan
+     */
     public function StationDopScan($cageNumber, $trackingNumber)
     {
         return $this->call('POST', 'stations/dop/scan', [
@@ -58,6 +73,9 @@ class Logistic extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistics%2Ftps%2Fstations%2Fupdate
+     */
     public function Update3PLStation($data)
     {
         return $this->call('POST', 'logistics/tps/stations/update', [
@@ -65,6 +83,9 @@ class Logistic extends Resource
         ]);
     }
 
+    /**
+     * @see https://open.lazada.com/apps/doc/api?path=%2Flogistics%2Ftps%2Fsellers%2Fpickup_timeslot
+     */
     public function UpdatePickupTimeSlot($sellerId, $warehouseCode, $pickupTimeslots)
     {
         return $this->call('POST', 'logistics/tps/sellers/pickup_timeslot', [
