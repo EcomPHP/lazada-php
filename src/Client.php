@@ -58,11 +58,38 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * @property-read \EcomPHP\Lazada\Resources\System $System
+ * @property-read \EcomPHP\Lazada\Resources\Seller $Seller
  * @property-read \EcomPHP\Lazada\Resources\Order $Order
  * @property-read \EcomPHP\Lazada\Resources\Finance $Finance
  * @property-read \EcomPHP\Lazada\Resources\Product $Product
+ * @property-read \EcomPHP\Lazada\Resources\CrossBoarderProduct $CrossBoarderProduct
+ * @property-read \EcomPHP\Lazada\Resources\ProductReview $ProductReview
+ * @property-read \EcomPHP\Lazada\Resources\StoreDecoration $StoreDecoration
+ * @property-read \EcomPHP\Lazada\Resources\MediaCenter $MediaCenter
+ * @property-read \EcomPHP\Lazada\Resources\Flexicombo $Flexicombo
+ * @property-read \EcomPHP\Lazada\Resources\SellerVoucher $SellerVoucher
+ * @property-read \EcomPHP\Lazada\Resources\FreeShipping $FreeShipping
+ * @property-read \EcomPHP\Lazada\Resources\EarlyBirdPrice $EarlyBirdPrice
+ * @property-read \EcomPHP\Lazada\Resources\ReturnAndRefund $ReturnAndRefund
+ * @property-read \EcomPHP\Lazada\Resources\Fulfillment $Fulfillment
  * @property-read \EcomPHP\Lazada\Resources\Logistic $Logistic
+ * @property-read \EcomPHP\Lazada\Resources\FirstMileBigbagOnlyForCN $FirstMileBigbagOnlyForCN
+ * @property-read \EcomPHP\Lazada\Resources\Membership $Membership
+ * @property-read \EcomPHP\Lazada\Resources\FBL $FBL
+ * @property-read \EcomPHP\Lazada\Resources\InstantMessaging $InstantMessaging
+ * @property-read \EcomPHP\Lazada\Resources\LazadaLogistics $LazadaLogistics
+ * @property-read \EcomPHP\Lazada\Resources\ETickets $ETickets
+ * @property-read \EcomPHP\Lazada\Resources\LazPay $LazPay
  * @property-read \EcomPHP\Lazada\Resources\Wallet $Wallet
+ * @property-read \EcomPHP\Lazada\Resources\RedMart $RedMart
+ * @property-read \EcomPHP\Lazada\Resources\LazadaDG $LazadaDG
+ * @property-read \EcomPHP\Lazada\Resources\SponsoredSolutions $SponsoredSolutions
+ * @property-read \EcomPHP\Lazada\Resources\ServiceMarket $ServiceMarket
+ * @property-read \EcomPHP\Lazada\Resources\ChoiceCustomized $ChoiceCustomized
+ * @property-read \EcomPHP\Lazada\Resources\LazLike $LazLike
+ * @property-read \EcomPHP\Lazada\Resources\LazLive $LazLive
+ * @property-read \EcomPHP\Lazada\Resources\LogisticsStation $LogisticsStation
+ * @property-read \EcomPHP\Lazada\Resources\Content $Content
  */
 class Client
 {
